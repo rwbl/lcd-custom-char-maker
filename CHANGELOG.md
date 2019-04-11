@@ -1,3 +1,6 @@
+#### v1.66 20190411
+* UPD: Compiled with B4J v7.31 and JDK 8_u202
+
 #### v1.65 20170227
 * NEW: Import 8 bytes array string in format 0xNN,0xNN... where NN is HEX value. Example 8 bytes array string for a Bell: 0x4,0xe,0xe,0xe,0x1f,0x0,0x4
 * NEW: Copy to clipboard buttons for Bin and Hex strings
