@@ -24,7 +24,9 @@ __Application Version:__ v1.66 (Build 20190411)
 
 ## Usage
 * Unpack lcdcharmaker.zip in a folder of choice.
-* Run from the objects folder, the file lcdcharmaker.jar. This is a Java application and requires Java to be installed.
+* Run from the objects folder, the file lcdcharmaker.jar with command _java -jar lcdcharmaker.jar_.
+* This is a Java application and requires Java to be installed.
+* Sample characters in the objects folder, i.e. atsign.chr.
 
 ## Functionality
 * Create custom LCD character with 5 pixel horizontal (cols), 8 pixel vertical (rows).
