@@ -17,8 +17,7 @@ The application is written in B4J (requires v5.80 or higher).
 The application is mainly used for B4R programms.
 [B4R](https://www.b4x.com/b4r.html) development tool, by [Anywhere Software](https://www.b4x.com), to build native Arduino & ESP8266 programs. 
 
-
-__Application Version:__ v1.65 (Build 20170227)
+__Application Version:__ v1.66 (Build 20190411)
 
 ## Files
 * lcdcharmaker.zip contains the application and sample characters.
