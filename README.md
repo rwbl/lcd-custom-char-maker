@@ -1,6 +1,8 @@
 # LCD_Custom_Char_Maker
 Open source application to create custom LCD characters for LCD displays connected to Arduino or Raspberry Pi.
 
+![lcdcharmaker](https://user-images.githubusercontent.com/47274144/55939260-a4411580-5c3d-11e9-809b-8f23921c56e9.png)
+
 ## Functionality
 * Create custom LCD character with 5 pixel horizontal (cols), 8 pixel vertical (rows).
 * Each row is represented by a byte with 5 bits.
