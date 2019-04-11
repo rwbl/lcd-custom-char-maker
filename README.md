@@ -1,11 +1,18 @@
-# lcdcharmaker
+# LCD_Custom_Char_Maker
 Open source application to create custom LCD characters for LCD displays connected to Arduino or Raspberry Pi.
 
-The application is written in B4J (requires v5.80 or higher).
+## Functionality
+* Create custom LCD character with 5 pixel horizontal (cols), 8 pixel vertical (rows).
+* Each row is represented by a byte with 5 bits.
+* Save / open the character to / from a textfile located in the application folder.
+* Import 8 bytes array string in format 0xNN,0xNN... where NN is HEX value.
+* Create B4R Inline C code (binary string) with copy to clipboard option.
+* Create B4J code (hex string) with copy to clipboard option.
 
+The application is written in B4J (requires v5.80 or higher).
 [B4J](https://www.b4x.com/b4j.html) development tool for cross platform desktop, server and IoT solutions by [Anywhere Software](https://www.b4x.com). 
 
-The application have been mainly used for B4R programms.
+The application is mainly used for B4R programms.
 [B4R](https://www.b4x.com/b4r.html) development tool, by [Anywhere Software](https://www.b4x.com), to build native Arduino & ESP8266 programs. 
 
 
