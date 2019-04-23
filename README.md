@@ -14,8 +14,10 @@ Open source application to create custom LCD characters for LCD displays connect
 The application is written in B4J (requires v5.80 or higher).
 [B4J](https://www.b4x.com/b4j.html) development tool for cross platform desktop, server and IoT solutions by [Anywhere Software](https://www.b4x.com). 
 
-The application is mainly used for B4R programms.
-[B4R](https://www.b4x.com/b4r.html) development tool, by [Anywhere Software](https://www.b4x.com), to build native Arduino & ESP8266 programs. 
+## Notes
+* The application is mainly used for B4R programms.
+* [B4R](https://www.b4x.com/b4r.html) development tool, by [Anywhere Software](https://www.b4x.com), to build native Arduino & ESP8266 programs. 
+* The application has been created for **personal use**  only. If planned for commercial use, ensure to comply to the [Oracle JDK License Agreement](https://www.oracle.com/technetwork/java/javase/terms/license/javase-license.html). 
 
 __Application Version:__ v1.66 (Build 20190411)
 
