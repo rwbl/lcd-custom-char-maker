@@ -1,10 +1,11 @@
 # LCDCustomCharMaker
 Create Custom Characters for LCD displays connected to Arduino, Raspberry Pi, Tinkerforge or other
 
-*LCDCustomCharMaker* is 
-* created with [B4J](https://www.b4x.com/b4j.html) - development tool for cross platform desktop, server and IoT solutions.
-* a Java 8 application and requires the Java 8 JDK to be installed. Ensure to comply to the [Oracle JDK Licence agreement](https://www.oracle.com/downloads/licenses/oracle-javase-license.html).
-* has been developed for personal & development use only.
+* Created with [B4J v8.00](https://www.b4x.com/b4j.html) - development tool for cross platform desktop, server and IoT solutions.
+* Requires Java JDK 8 to run. Ensure to comply to the [Oracle JDK Licence agreement](https://www.oracle.com/downloads/licenses/oracle-javase-license.html).
+* Developed for personal & development use only.
+
+![lcdcustomcharmaker](https://user-images.githubusercontent.com/47274144/72811224-7de5e700-3c5f-11ea-81ab-df8d4fbfeb9f.png)
 
 ## Functionality
 * Create custom LCD character with 5 pixel horizontal (cols), 8 pixel vertical (rows).
@@ -20,13 +21,15 @@ Create Custom Characters for LCD displays connected to Arduino, Raspberry Pi, Ti
 * lcdcustomcharmaker.zip contains the application, sample characters and examples.
 
 ## Install
-Unpack lcdcustomcharmaker.zip in a folder of choice.
-From the source/objects folder, run the Java jar lcdcustomcharmaker.jar:
+From the source/Objects folder, run the Java jar **lcdcustomcharmaker.jar**
 ```
 java -jar lcdcustomcharmaker.jar
 ```
 
-Note: An example batch file "run8.bat" to run under Windows is included. Ensure to set the path to the JDK8 folder.
+**Notes:**
+* The full B4J source code is included (folder source).
+* An example batch file "run8.bat" to run under Windows is included. Ensure to set the path to the JDK8 folder.
+* There is also a "run11.bat" for running with openJDK11 - might require to recompile first with B4J using openJDK11.
 
 ## Example Coding Custom Character Battery
 
@@ -58,9 +61,9 @@ battery = [14, 27, 17, 17, 17, 17, 17, 31]
 ```
 
 ### Tinkerforge
-The LCD 20x4 display supports up to 8 custom characters 0-7 which are mapped to \u0008-\u000F (\u takes hex numbers).
-Tested defining and writing custom characters with an LCD 20x4 v1.2 Bricklet with UID=BHN.
-Some snippet exmples.
+The LCD 20x4 Bricklet supports up to 8 custom characters 0-7 which are mapped to \u0008-\u000F (\u takes hex numbers).
+Tested defining and writing custom characters with an LCD 20x4 v1.2 Bricklet having UID=BHN.
+Some API snippet exmples.
 
 #### C
 ```
@@ -200,7 +203,6 @@ The Degree Character ° is located at position upper 4 bits 1101 and lower 4 bit
 The 8 bits 1101 1111 are HEX DF and DEC 223.
 To write the character to the LCD use lcd.Write(Array As Byte(223)).
 
-
 ### LCD Character Table
 Convert Upper 4 & Lower 4 bits to HEX and Unicode
 Example Cent Character: Upper 4 bits = 1110, Lower 4 bits = 1111
@@ -210,8 +212,7 @@ Converted:
 Use the LCD display datasheet accordingly.
 
 ## Licence
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS for A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with the samples.  If not, see [GNU Licenses](http://www.gnu.org/licenses/).
