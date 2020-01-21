@@ -1,0 +1,513 @@
+﻿AppType=JavaFX
+Build1=Default,b4j.example
+File1=Main.bjl
+File2=Styles.css
+FileGroup1=Default Group
+FileGroup2=Default Group
+Group=Default Group
+Library1=jcore
+Library2=jfx
+Library3=javaobject
+NumberOfFiles=2
+NumberOfLibraries=3
+NumberOfModules=0
+Version=8
+@EndOfDesignText@
+#Region Copyright
+'B4J Open Sourec Project: LCDCustomCharMaker
+'Create a custom character (gylph) for use on LCD displays.
+'The LCD display support up to eight characters (numbered 0 - 7).
+'Each character has a width of 5 pixels and a height of 8 pixels, these are the rows.
+'The appearance of each custom character is specified by an array of 8 bytes, one for each row. 
+'The 5 least significant bits of each byte determine the pixels in that row, the first 3 are set to 0.
+'To display a custom character on the screen, use Chr(n) - n is 0 - 7. 
+'Additional Libraries used: JavaObject
+'This Source Code is subject to the terms of the GNU GENERAL PUBLIC LICENSE.
+'Copyright (C) 2016-2019, Robert W.B. Linn, Pinneberg, Germany
+'Development Tool: B4J 8.00 with JDK8
+'Version: see Process_Globals Const CAPPVERSION
+'Information: README.md
+'Author: Robert W.B. Linn
+#End Region
+
+#Region Project Notes
+#End Region
+
+#Region Project ToDo
+'TODO:
+#End Region
+
+#Region  Project Attributes 
+	#MainFormWidth: 800
+	#MainFormHeight: 460
+	#VirtualMachineArgs: -Dglass.win.uiScale=100% 
+#End Region
+
+Sub Process_Globals
+	Private Const CAPPTITLE As String 		= "LCD Custom Char Maker"
+	Private Const CAPPVERSION As String 	= "v2.00 (20200121)"
+	Private Const CAPPCOPYRIGHT As String 	= "Copyright (c) 2016-2019 by Robert W.B. Linn"
+	Private Const CAPPDESCRIPTION As String	= "Create Custom Characters for LCD Displays."
+	Private Const CRLF2 As String = CRLF & CRLF
+	
+	Private fx As JFX
+	Private MainForm As Form
+	Private MenuBarMain As MenuBar
+	Private PaneLCDChar As Pane
+	Private tfLCDCharName As TextField
+	Private taLCDCharExamples As TextArea
+	Private btnSetBitsHigh As Button
+	Private btnSetBitsLow As Button
+	Private tfImportByteArray As TextField
+	Private btnImportByteArray As Button
+	Private btnImportPaste As Button
+	Private btnCopyLCDCharExamples As Button
+	Private btnConvertFont As Button
+	Private btnClose As Button
+	Private tfBIN As TextField
+	Private tfDEC As TextField
+	Private tfHEX As TextField
+End Sub
+
+Sub AppStart (Form1 As Form, Args() As String)
+	MainForm = Form1
+	MainForm.SetFormStyle("UTILITY")
+	MainForm.RootPane.LoadLayout("Main")
+	MainForm.Title = $"${CAPPTITLE} ${CAPPVERSION}"$
+	MainForm.Show
+	AppInit
+End Sub
+
+Sub AppInit
+	'Styling
+	MainForm.Stylesheets.Add(File.GetUri(File.DirAssets, "Styles.css"))
+	'Create the 5 cols x 8 rows char matrix (=40 bits)
+	CreateCharMatrix
+End Sub
+
+'Close the app - add any specifics here
+Sub AppClose
+	MainForm.Close
+End Sub
+
+'Handle form closing via system close (top right X button)
+Sub MainForm_CloseRequest (EventData As Event)
+	AppClose
+End Sub
+
+#Region MENUBAR
+'Open a special character file
+Sub FileOpen_Action
+	Dim f As String
+  	Dim fc As FileChooser                 ' Use filechooser from jFX library
+  	fc.Initialize                         ' Init! Do not forget
+  	fc.InitialDirectory = File.DirApp     ' Set starting folder
+  	fc.InitialFileName = tfLCDCharName.Text & ".chr"
+  	fc.SetExtensionFilter("Custom Char", Array As String("*.chr"))
+  	fc.Title = "Select a Custom Character File"
+  	f = fc.ShowOpen(MainForm)      ' Show the dialog and select
+  	If f.Length = 0 Then Return
+  	Try
+		Dim m As Map = File.ReadMap(GetFilePath(f), GetFileName(f))
+		For row = 0 To 7
+			For col = 0 To 4
+				SetButtonStateByTag("c"&row&":"&col, m.Get("c"&row&":"&col))
+			Next	 		
+		Next
+		tfLCDCharName.Text = GetFileName(f).Replace(".chr", "")
+		SetLCDCharValues
+  	Catch
+		fx.Msgbox2(MainForm, $"Error reading character file ${f}${CRLF}${LastException.Message}"$, "Error", "OK", "", "", fx.MSGBOX_ERROR)
+  	End Try
+End Sub              
+
+'Save the special character to a file
+Sub FileSave_Action
+	Dim fc As FileChooser                 ' Use filechooser from jFX library
+  	fc.Initialize                         ' Init! Do not forget
+  	fc.InitialDirectory = File.DirApp     ' Set starting folder
+  	fc.SetExtensionFilter("Custom Char", Array As String("*.chr"))
+	If tfLCDCharName.Text.Length > 0 Then
+		fc.InitialFileName = tfLCDCharName.text
+	Else
+  		fc.InitialFileName = "customchar.chr"
+	End If
+  	fc.Title = "Save Character to File"
+  	Dim f As String = fc.ShowSave(MainForm)      ' Show the dialog and select
+  	If f.Length = 0 Then Return
+  	Try
+		Dim m As Map
+		m.Initialize
+		For row = 0 To 7
+			For col = 0 To 4
+				m.Put("c"&row&":"&col, GetButtonState("c"&row&":"&col))
+			Next	 		
+		Next
+		File.WriteMap(GetFilePath(f), GetFileName(f),m)
+  	Catch
+		fx.Msgbox2(MainForm, $"Error saving character to file ${f}${CRLF}${LastException.Message}"$, "Error", "OK", "", "", fx.MSGBOX_ERROR)
+  	End Try
+End Sub
+
+Sub FileExit_Action
+	AppClose
+End Sub
+
+Sub EditCopy_Action
+	btnCopyLCDCharExamples_Action
+End Sub
+
+Sub EditSetBitsHigh_Action
+	btnSetBitsHigh_Action
+End Sub
+
+Sub EditSetBitsLow_Action
+	btnSetBitsLow_Action
+End Sub
+
+Sub HelpAbout_Action
+	fx.Msgbox2(MainForm, $"${CAPPTITLE} ${CAPPVERSION}${CRLF}${CAPPDESCRIPTION}${CRLF}${CAPPCOPYRIGHT}"$, "About", "OK", "", "", fx.MSGBOX_INFORMATION)
+End Sub
+#End Region	'MENUBAR
+
+#Region CHARMATRIX
+'Create the char matrix with 5 cols and 8 rows. Each row representing a byte with 5 bits.
+Sub CreateCharMatrix
+	For row = 0 To 7
+		For col = 0 To 4 
+			Dim btn As Button
+			btn.Initialize("btn")
+			btn.Tag = "c"&row & ":" & col
+			btn.Id = "0"
+			btn.Style = "-fx-background-color:white;"
+			PaneLCDChar.AddNode(btn, 25 + (col * 30), 5 + (row * 40) + 15, 25, 25)
+		Next	
+	Next
+End Sub
+
+'Set a char bit to high or low
+Sub btn_Action
+	Dim btn As Button = Sender
+	If btn.Id = "0" Then
+		btn.Id = "1" 
+	Else
+		btn.Id = "0" 
+	End If
+	SetButtonState(btn, btn.id)
+End Sub
+
+'Set the color state of a button depending its id being high or low
+Sub SetButtonState(btn As Button, id As String)
+	btn.Id = id
+	If btn.Id = "0" Then
+		btn.Style = "-fx-background-color:white;"
+	Else
+		btn.Style = "-fx-background-color:blue;"
+	End If
+	SetLCDCharValues
+End Sub
+
+'Set the pattern for the types DEC,HEX,BIN
+Sub setPattern(patternType As String) As String
+	Dim sbResult As StringBuilder
+	sbResult.Initialize
+	patternType = patternType.ToUpperCase
+	For row = 0 To 7
+		Dim bs As String = ""
+		Dim hex As String = ""
+		If patternType == "BIN" Then bs = "B"
+		For col = 0 To 4
+			bs = bs & GetButtonState("c"&row&":"&col)
+		Next
+		If patternType == "BIN" Then 
+			sbResult.Append(bs)
+		Else
+			bs = "000" & bs
+			hex = ByteStringToHex(bs)
+			If hex.Length < 2 Then hex = "0" & hex
+		End If
+		If patternType == "DEC" Then 
+			sbResult.Append(HexToInt(hex))
+		End If
+		If patternType == "HEX" Then 
+			sbResult.Append("0x" & hex)
+		End If
+		'
+		If row < 7 Then sbResult.append(", ")
+	Next
+	Return sbResult.ToString
+End Sub
+
+'Set the LCD char values, build the payload string and the customcharmap
+'CustomCharMap in range \u0009 (=Index 0) to \u000F (=Index 7)
+'Byte arroweq[8] = {B00000,B00000,B11111,B00000,B11111,B00000,B00000,B00000};
+Sub SetLCDCharValues
+	Dim sbResult As StringBuilder
+	Dim strDEC, strHEX, strBIN As String
+	sbResult.Initialize
+
+	'Create the string arrays for Decimal,Hex,Bin with example battery character
+	'14, 27, 17, 17, 17, 17, 17, 31
+	strDEC = setPattern("DEC")
+	'0x0E, 0x1B, 0x11, 0x11, 0x11, 0x11, 0x11, 0x1F
+	strHEX = setPattern("HEX")
+	'B01110, B11011, B10001, B10001, B10001, B10001, B10001, B11111
+	strBIN = setPattern("BIN")
+	'Set the various textfields
+	tfDEC.Text = strDEC
+	tfHEX.Text = strHEX
+	tfBIN.Text = strBIN
+
+	'B4X hex array with example Battery:
+	'Dim battery(8) As Byte
+	'battery = Array As Byte (0x0E, 0x1B, 0x11, 0x11, 0x11, 0x11, 0x11, 0x1F)
+	sbResult.Append($"' B4X HEX array"$).Append(CRLF)
+	sbResult.Append($"Dim ${tfLCDCharName.text}(8) As Byte"$).Append(CRLF)
+	sbResult.Append($"${tfLCDCharName.text} = Array As Byte ("$).Append(strHEX).Append(")")
+	sbResult.Append(CRLF2)
+
+	'C byte array with example Battery:
+	'Byte battery[8] = {B01110,B11011,B10001,B10001,B10001,B10001,B10001,B11111};
+	sbResult.Append($"// C byte array"$).Append(CRLF)
+	sbResult.Append("Byte ").Append(tfLCDCharName.text).Append("[8] = {").Append(strBIN).Append("};")
+	sbResult.Append(CRLF)
+	'C int8_t array with example Battery:
+	'int8_t battery[8] = {14,27,17,17,17,17,17,31};
+	sbResult.Append($"// C int8_t array"$).Append(CRLF)
+	sbResult.Append("int8_t ").Append(tfLCDCharName.text).Append("[8] = {").Append(strDEC).Append("};")
+	sbResult.Append(CRLF2)
+
+	'Python int array with Tinkerforge example for battery character
+	'battery = [14, 27, 17, 17, 17, 17, 17, 31]
+	'lcd.set_custom_character(0, battery)
+	'lcd.write_line(0, 0, "Battery: " + "\x08")
+	sbResult.Append($"# Python int array"$).Append(CRLF)
+	sbResult.Append($"${tfLCDCharName.text} = ["$).Append(strDEC).Append("]")
+	sbResult.Append(CRLF2)
+
+	'Java with Tinkerforge example for battery character
+	'short[] battery = new short[]{14,27,17,17,17,17,17,31};
+	'// Set custom character 0:
+	'lcd.setCustomCharacter((short)0, battery);
+	'// Display the custom char with some text
+	'lcd.writeLine((short)0, (short)0, "Battery: " + (char)0x08);
+	'or use unicode
+	'lcd.writeLine((short)0, (short)0, "Battery: " + "\u0008");
+	sbResult.Append($"// Java short array"$).Append(CRLF)
+	sbResult.Append($"short[] battery = new short[]{"$).Append(strDEC).Append("}")
+	sbResult.Append(CRLF2)
+
+	'JavaScript int array with Tinkerforge example for battery character
+	'battery = [14, 27, 17, 17, 17, 17, 17, 31]
+	'lcd.setCustomCharacter(0, battery)
+	'lcd.writeLine(0, 0, "Battery: " + "\x08")
+	sbResult.Append($"// JavaScript int array"$).Append(CRLF)
+	sbResult.Append($"${tfLCDCharName.text} = ["$).Append(strDEC).Append("]")
+	sbResult.Append(CRLF2)
+
+	'JSON Tinkerforge MQTT2 Index 0 and Int Array for battery character
+	'{"index":0, "character":[14,27,17,17,17,17,17,31]}
+	'# Set custom character 0:
+	'mosquitto_pub -t tinkerforge/request/lcd_20x4_bricklet/BHN/set_custom_character -m '{"index":0, "character":[14,27,17,17,17,17,17,31]}'
+	'# Write custom character To the display with some text:
+	'mosquitto_pub -t tinkerforge/request/lcd_20x4_bricklet/BHN/write_line -m '{"line": 0, "position": 0, "text": "Battery: \u0008"}'
+	sbResult.Append($"# JSON Tinkerforge MQTT2 index 0 and int array"$).Append(CRLF)
+	sbResult.Append($"{"index":0, "character":["$).Append(strDEC).Append("]}")
+	sbResult.Append(CRLF)
+
+	' Display the result in the textarray
+	taLCDCharExamples.Text = sbResult.ToString
+End Sub
+
+'Get the state of a button.
+'The button is recognized by its tag: "c"&row&":"&col, like c1:2
+Sub GetButtonState(mtag As String) As String
+	For Each n As Node In PaneLCDChar.GetAllViewsRecursive
+		If n Is Button Then
+			Dim btn As Button = n
+			If btn.Tag = mtag Then
+				Return btn.Id 	'Text
+			End If
+		End If
+	Next
+	Return ""
+End Sub
+
+'Find a button and set its state
+Sub SetButtonStateByTag(mtag As String, state As String)
+	For Each n As Node In PaneLCDChar.GetAllViewsRecursive
+		If n Is Button Then
+			Dim btn As Button = n
+			If btn.Tag = mtag Then
+				SetButtonState(btn, state)
+			End If
+		End If
+	Next
+End Sub
+#End Region 'CHARMATRIX
+
+Sub btnSetBitsLow_Action
+	FillChar("0")
+End Sub
+
+Sub btnSetBitsHigh_Action
+	FillChar("1")
+End Sub
+
+Sub ChoiceBoxCharIndex_SelectedIndexChanged(Index As Int, Value As Object)
+	SetLCDCharValues
+End Sub
+
+Sub btnCopyLCDCharExamples_Action
+	fx.Clipboard.SetString(taLCDCharExamples.Text)
+End Sub
+
+Sub tfLCDCharName_TextChanged (Old As String, New As String)
+	If New.Length > 0 Then SetLCDCharValues	
+End Sub
+
+Sub btnImportPaste_Action
+	If fx.Clipboard.HasString Then tfImportByteArray.Text = fx.Clipboard.GetString
+End Sub
+
+'Import 8 a byte array.
+'Example content 0x4,0xe,0xe,0xe,0x1f,0x0,0x4
+Sub btnImportByteArray_Action
+	tfLCDCharName.Text = "charname"
+	ByteArrayStringToLCD(tfImportByteArray.Text)
+End Sub
+
+Sub btnConvertFont_Click
+	Dim msgTitle As String = "Convert 8 Bits (Upper 4 Lower 4) String to Hex"
+	Dim msgMessage As String = ""
+	Dim bitArray As String = tfImportByteArray.Text
+	If bitArray.Contains("0b") Then
+		bitArray = bitArray.Replace("0b","")
+	End If
+	' fx.Msgbox2(MainForm, bitArray, bitArray.Length, "OK", "", "", fx.MSGBOX_INFORMATION)
+	If bitArray.Length = 8 Then
+		Dim hex As String = ByteStringToHex(bitArray)
+		Dim dec As String = HexToInt(hex)
+		msgMessage = $"Converted 8 Bits Upper 4 Lower 4:${CRLF}${bitArray}${CRLF}to${CRLF}${hex} , 0x${hex} , \u00${hex}, ${dec}"$
+		fx.Clipboard.SetString(msgMessage)
+		tfImportByteArray.Text = $"${bitArray} = ${hex} , 0x${hex} , \u00${hex}, ${dec}"$
+		fx.Msgbox2(MainForm, msgMessage, msgTitle, "OK", "", "", fx.MSGBOX_INFORMATION)	
+	End If
+End Sub
+
+'Close the appliction
+Sub btnClose_Click
+	MainForm.close
+End Sub
+
+#Region LCD
+'Convert a 8 byte array string to a character
+'Example: ByteArrayStringToLCD("0x4,0xe,0xe,0xe,0x1f,0x0,0x4")
+Sub ByteArrayStringToLCD(bas As String)
+	'Set all bits to low
+	FillChar("0")
+	'Check if there is a bytearray
+	If bas.Length = 0 Then
+		fx.Msgbox2(MainForm, $"No 8 byte array string defined."$, "Error Import", "OK", "", "", fx.MSGBOX_ERROR)
+		Return
+	End If
+	'Add trailing comma if missing to get 8 bytes
+	If Not(bas.EndsWith(",")) Then bas = bas & ","
+	'Remove prefix 0x - if exists
+	bas = bas.ToUpperCase.Replace("0X", "").Trim
+	'Split the byte array string in to 8 single hex strings which represent the rows
+	Dim rowhexarray() As String = Regex.Split(",", bas)
+	If rowhexarray.Length < 8 Then
+		fx.Msgbox2(MainForm, $"The byte array does not contain 8 bytes."$, "Error Import", "OK", "", "", fx.MSGBOX_ERROR)
+		Return
+	End If
+	'Convert the hex string to a binary string with length 5 for each row and display the bits
+	Dim rowbinstr(rowhexarray.Length) As String
+	For row = 0 To rowhexarray.Length - 1
+		'Get the row as bit string
+		rowbinstr(row) = ToBinaryString5(HexToInt(rowhexarray(row)))
+		'Split the bit string in single bits
+		Dim b() As String = Regex.Split("", rowbinstr(row))
+		'Set the bits for each col of the row
+		For col = 0 To 4
+			SetButtonStateByTag("c"&row&":"&col, b(col))
+		Next
+	Next
+End Sub
+#End Region
+
+#Region UTILITIES
+'Convert a byte string with 8 bits into a hex string
+'Example: 11011111 converted to DF
+Sub ByteStringToHex(bs As String) As String	'ignore
+  Return Bit.ToHexString(Bit.ParseInt(bs.trim, 2)).ToUpperCase
+End Sub
+
+'Convert HEX string to Integer using radix 16
+'Example: "A" converted to 10
+Sub HexToInt(hex As String) As Int	'ignore
+	Return Bit.ParseInt(hex.trim, 16)
+End Sub
+
+' Converts a number to a binary string with length 8
+' Parameter: number to convert
+Private Sub ToBinaryString8(number As Int) As String	'ignore
+  Dim result As String = ""
+  Dim joI As JavaObject
+  joI.InitializeStatic("java.lang.Integer")
+  result = joI.RunMethod("toBinaryString", Array(number))
+  Dim n As Int = result.Length
+  For i = n To 7
+    result = "0" & result
+  Next
+  Return result
+End Sub
+
+' Converts a number to a binary string with length 5
+' Parameter: number to convert
+Private Sub ToBinaryString5(number As Int) As String
+  Dim result As String = ""
+  Dim joI As JavaObject
+  joI.InitializeStatic("java.lang.Integer")
+  result = joI.RunMethod("toBinaryString", Array(number))
+  Dim n As Int = result.Length
+  For i = n To 7
+    result = "0" & result
+  Next
+  Return result.SubString2(3, 8)
+End Sub
+
+'Fill the char with a value, like value 0 or 1
+Sub FillChar(value As String)
+		For Each n As Node In PaneLCDChar.GetAllViewsRecursive
+		If n Is Button Then
+			Dim btn As Button = n
+			Dim s As String = btn.Tag
+			If s.StartsWith("c") Then SetButtonState(btn, value)
+		End If
+	Next
+End Sub
+	
+'Returns the filename from a fullpath
+Sub GetFileName(path As String) As String
+  ' Define the JavaObject                      
+  Dim fileO As JavaObject
+  ' Get the fileio class
+  fileO.InitializeNewInstance("java.io.File", Array As Object(path))
+  ' Getthe filename
+  Return fileO.RunMethod("getName", Null)
+End Sub
+
+'Returns the filepath from a fullpath
+Sub GetFilePath(path As String) As String
+  ' Define the JavaObject
+  Dim fileO As JavaObject
+  ' Get the fileio class
+  fileO.InitializeNewInstance("java.io.File", Array As Object(path))
+  ' Getthe filename and path
+  Dim n As String = fileO.RunMethod("getName", Null)
+  Dim p As String = fileO.RunMethod("getPath", Null)
+  p = p.Replace(n, "")
+  Return p
+End Sub
+#End Region UTILITIES
