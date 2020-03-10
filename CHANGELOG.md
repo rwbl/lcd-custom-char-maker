@@ -1,4 +1,3 @@
-s
 20200121 v2.00
 * NEW: Textfield for character values DEC,HEX,BIN
 * UPD: Language examples with focus on Tinkerforge LCD20x4 bricklet
