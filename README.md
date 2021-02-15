@@ -1,4 +1,4 @@
-# LCDCustomCharMaker
+# LCD-Custom-Char-Maker
 Create Custom Characters for LCD displays connected to Arduino, Raspberry Pi, Tinkerforge or other
 
 * Created with [B4J v8.00](https://www.b4x.com/b4j.html) - development tool for cross platform desktop, server and IoT solutions.
